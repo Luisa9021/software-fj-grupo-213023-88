@@ -12,7 +12,7 @@ Sistema en Python con Programación Orientada a Objetos, sin base de datos. Gest
 | Integrante | Archivo | Estado |
 |---|---|---|
 | Luisa Viviana Rueda Ayala (Luisa9021) | `excepciones.py` y `logger.py` | Listo |
-| (pendiente) | `entidades.py`: clase abstracta `Entidad` y clase `Cliente` | Pendiente |
+| Jorge Castaño (jorgecaasta17-rgb) | `entidades.py`: clase abstracta `Entidad` y clase `Cliente` | Asignado |
 | (pendiente) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | Pendiente |
 | (pendiente) | `reserva.py`: clase `Reserva` con estados | Pendiente |
 | (pendiente) | `main.py`: simulación de 10 operaciones o más | Pendiente |
