@@ -1,0 +1,69 @@
+from modelos.entidades import Entidad
+from excepciones import ClienteInvalidoError
+
+class Cliente(Entidad):
+
+    def __init__(self, documento, nombre, correo, telefono):
+
+        super().__init__(documento) # Llamada al constructor de la clase base Entidad para inicializar el identificador
+
+        self.documento = documento
+        self.nombre = nombre
+        self.correo = correo
+        self.telefono = telefono
+
+    # Encapsulación
+    @property
+    def documento(self):
+        return self.__documento
+
+    @documento.setter
+    def documento(self, identidad):
+
+        if not identidad:
+            raise ClienteInvalidoError( "El documento es obligatorio.")
+
+        if not str(identidad).isdigit():
+            raise ClienteInvalidoError("El documento debe contener solo números.")
+        self.__documento = identidad
+
+    @property
+    def nombre(self):
+        return self.__nombre
+
+    @nombre.setter
+    def nombre(self, nomb):
+
+        if len(nomb.strip()) < 3:
+            raise ClienteInvalidoError("El nombre debe tener mínimo 3 caracteres.")
+        self.__nombre = nomb
+
+    @property
+    def correo(self):
+        return self.__correo
+
+    @correo.setter
+    def correo(self, email):
+
+        if "@" not in email:
+            raise ClienteInvalidoError("Correo electrónico inválido.")
+        self.__correo = email
+
+    @property
+    def telefono(self):
+        return self.__telefono
+
+    @telefono.setter
+    def telefono(self, tel):
+
+        if not str(tel).isdigit():
+            raise ClienteInvalidoError("El teléfono debe contener solo números.")
+
+        if len(str(tel)) < 7:
+            raise ClienteInvalidoError("Teléfono inválido.")
+        self.__telefono = tel
+
+
+    def mostrar_info(self):
+        return (f"- Documento: {self.documento}" f"Cliente: {self.nombre}" 
+                f"teléfono: {self.telefono}" f"Correo: {self.correo}")
