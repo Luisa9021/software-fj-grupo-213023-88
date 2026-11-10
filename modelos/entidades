@@ -1,0 +1,27 @@
+from abc import ABC, abstractmethod
+
+
+class Entidad(ABC):
+    """
+    Clase abstracta base para las entidades
+    generales del sistema Software FJ.
+    """
+
+    def __init__(self, identificador):
+
+        if not identificador:
+            raise ValueError("El identificador no puede estar vacío.")
+
+        self._identificador = str(identificador)
+
+    @property
+    def identificador(self):
+        return self._identificador
+
+    @abstractmethod
+    def mostrar_info(self):
+        """Método que cada clase hija debe implementar."""
+        pass
+
+    def __str__(self):
+        return self.mostrar_info()
