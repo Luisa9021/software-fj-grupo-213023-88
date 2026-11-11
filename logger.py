@@ -22,7 +22,16 @@ def registrar_evento(mensaje):
     """Registra un evento normal (operación exitosa)."""
     log.info(mensaje)
 
+def registrar_advertencia(mensaje):
+    """ Situación no crítica."""
+    log.warning(mensaje)
 
 def registrar_error(mensaje):
     """Registra un error controlado."""
     log.error(mensaje)
+
+def registrar_excepcion(excepcion):
+    """ Guarda el traceback completo. """ 
+    log.exception(str(excepcion))
+     # Sirve para registrar en el archivo de logs una excepción 
+    # junto con toda la información técnica del error
