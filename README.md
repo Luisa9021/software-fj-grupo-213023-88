@@ -13,7 +13,7 @@ Sistema en Python con Programación Orientada a Objetos, sin base de datos. Gest
 |---|---|---|
 | Luisa Viviana Rueda Ayala (Luisa9021) | `excepciones.py` y `logger.py` | Listo |
 | Jorge Castaño (jorgecaasta17-rgb) | `modelos/entidades.py`: clase abstracta `Entidad` y `modelos/cliente.py`: clase `Cliente` | En revisión |
-| (pendiente) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | Pendiente |
+| Mauricio Ramírez (Mmaupp) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | Asignado |
 | Valeria Daniel Sisa (valeriadaniel17) | `reserva.py`: clase `Reserva` con estados | Asignado |
 | (pendiente) | `main.py`: simulación de 10 operaciones o más | Pendiente |
 
