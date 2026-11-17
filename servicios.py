@@ -62,8 +62,8 @@ class Servicio(Entidad):
         """Cada servicio valida sus propios parámetros."""
 
     @abstractmethod
-    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0, **opciones):
-        """Cada servicio calcula su costo a su manera (polimorfismo)."""
+    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0):
+        """Cada servicio calcula su costo (polimorfismo)."""
 
     @abstractmethod
     def descripcion(self):
@@ -77,8 +77,6 @@ class Servicio(Entidad):
 class ReservaSala(Servicio):
     """Servicio 1: reserva de salas."""
 
-    RECARGO_PROYECTOR = 20000.0  # Extra por hora si se usa proyector
-
     def __init__(self, nombre_servicio, tarifa_base, capacidad, disponible=True):
         super().__init__(nombre_servicio, tarifa_base, disponible)
         if not isinstance(capacidad, int) or capacidad <= 0:
@@ -89,16 +87,13 @@ class ReservaSala(Servicio):
     def validar_parametros(self, horas, personas=1):
         self.verificar_disponibilidad()
         self.validar_duracion(horas)
-        if personas > self.capacidad:  # No se puede superar el aforo
-            registrar_error(f"Aforo excedido en '{self._nombre_servicio}': {personas}")
+        if personas > self.capacidad:  # No se puede superar la capacidad
+            registrar_error(f"Capacidad excedida en '{self._nombre_servicio}': {personas}")
             raise ReservaInvalidaError(f"La sala admite máximo {self.capacidad} personas.")
 
-    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0, con_proyector=False, personas=1):
+    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0, personas=1):
         self.validar_parametros(horas, personas=personas)
-        tarifa = self._tarifa_base
-        if con_proyector:  # Suma el proyector si se pidió
-            tarifa += self.RECARGO_PROYECTOR
-        return self.calcular_total(tarifa * horas, impuesto, descuento)
+        return self.calcular_total(self._tarifa_base * horas, impuesto, descuento)
 
     def descripcion(self):
         return f"Sala para hasta {self.capacidad} personas."
@@ -107,10 +102,6 @@ class ReservaSala(Servicio):
 class AlquilerEquipo(Servicio):
     """Servicio 2: alquiler de equipos."""
 
-    SEGURO = 0.10  # El seguro cuesta 10 % del alquiler
-    DESC_JORNADA = 0.10  # Descuento por jornada completa
-    HORAS_JORNADA = 8  # Horas que cuentan como jornada completa
-
     def __init__(self, nombre_servicio, tarifa_base, tipo_equipo, disponible=True):
         super().__init__(nombre_servicio, tarifa_base, disponible)
         if not tipo_equipo or not str(tipo_equipo).strip():
@@ -118,61 +109,35 @@ class AlquilerEquipo(Servicio):
             raise ParametroFaltanteError("El tipo de equipo es obligatorio.")
         self.tipo_equipo = str(tipo_equipo).strip()
 
-    def validar_parametros(self, horas, con_seguro=False):
+    def validar_parametros(self, horas):
         self.verificar_disponibilidad()
         self.validar_duracion(horas)
-        if not isinstance(con_seguro, bool):  # Debe ser True o False
-            registrar_error(f"con_seguro inválido en '{self._nombre_servicio}': {con_seguro}")
-            raise ServicioInvalidoError("con_seguro debe ser True o False.")
 
-    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0, con_seguro=False):
-        self.validar_parametros(horas, con_seguro=con_seguro)
-        subtotal = self._tarifa_base * horas
-        if con_seguro:  # Suma el seguro si se pidió
-            subtotal += subtotal * self.SEGURO
-        if horas >= self.HORAS_JORNADA:  # Descuento extra por jornada completa
-            descuento = min(1.0, descuento + self.DESC_JORNADA)
-        return self.calcular_total(subtotal, impuesto, descuento)
+    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0):
+        self.validar_parametros(horas)
+        return self.calcular_total(self._tarifa_base * horas, impuesto, descuento)
 
     def descripcion(self):
         return f"Alquiler de {self.tipo_equipo}."
 
 
 class AsesoriaEspecializada(Servicio):
-    """Servicio 3: asesoría con precio según el nivel del asesor."""
+    """Servicio 3: asesoría especializada."""
 
-    NIVELES = {"junior": 1.0, "senior": 1.5, "experto": 2.0}  # Multiplicador por nivel
-    RECARGO_PRESENCIAL = 0.15  # Presencial cuesta 15 % más
-    MIN_HORAS = 0.5  # Duración mínima
-
-    def __init__(self, nombre_servicio, tarifa_base, especialidad, nivel="junior", disponible=True):
+    def __init__(self, nombre_servicio, tarifa_base, especialidad, disponible=True):
         super().__init__(nombre_servicio, tarifa_base, disponible)
         if not especialidad or not str(especialidad).strip():
             registrar_error(f"Asesoría '{nombre_servicio}' sin especialidad")
             raise ParametroFaltanteError("La especialidad es obligatoria.")
-        nivel = str(nivel).strip().lower()
-        if nivel not in self.NIVELES:  # Solo niveles definidos
-            registrar_error(f"Nivel inválido en '{nombre_servicio}': {nivel}")
-            raise ServicioInvalidoError("Nivel inválido. Use: junior, senior o experto.")
         self.especialidad = str(especialidad).strip()
-        self.nivel = nivel
 
-    def validar_parametros(self, horas, presencial=False):
+    def validar_parametros(self, horas):
         self.verificar_disponibilidad()
         self.validar_duracion(horas)
-        if horas < self.MIN_HORAS:  # Una asesoría dura mínimo media hora
-            registrar_error(f"Asesoría muy corta en '{self._nombre_servicio}': {horas}")
-            raise ReservaInvalidaError(f"La asesoría debe durar al menos {self.MIN_HORAS} horas.")
-        if not isinstance(presencial, bool):  # Debe ser True o False
-            registrar_error(f"presencial inválido en '{self._nombre_servicio}': {presencial}")
-            raise ServicioInvalidoError("presencial debe ser True o False.")
 
-    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0, presencial=False):
-        self.validar_parametros(horas, presencial=presencial)
-        subtotal = self._tarifa_base * self.NIVELES[self.nivel] * horas
-        if presencial:  # Recargo por modalidad presencial
-            subtotal += subtotal * self.RECARGO_PRESENCIAL
-        return self.calcular_total(subtotal, impuesto, descuento)
+    def calcular_costo(self, horas, impuesto=0.0, descuento=0.0):
+        self.validar_parametros(horas)
+        return self.calcular_total(self._tarifa_base * horas, impuesto, descuento)
 
     def descripcion(self):
-        return f"Asesoría de {self.especialidad} (nivel {self.nivel})."
+        return f"Asesoría de {self.especialidad}."
