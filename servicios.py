@@ -21,6 +21,7 @@ class Servicio(Entidad):
         if not isinstance(tarifa_base, (int, float)) or tarifa_base <= 0:
             registrar_error(f"Tarifa inválida en '{nombre_servicio}': {tarifa_base}")
             raise ServicioInvalidoError("La tarifa base debe ser un número mayor que cero.")
+          
         super().__init__(str(nombre_servicio).strip())  # Entidad guarda el identificador
         self._nombre_servicio = str(nombre_servicio).strip()  # Nombre del servicio
         self._tarifa_base = float(tarifa_base)  # Tarifa por hora
