@@ -35,7 +35,7 @@ class Cliente(Entidad):
     def nombre(self, nomb):
 
         if len(nomb.strip()) < 3:
-            raise ClienteInvalidoError("El nombre debe tener mínimo 3 caracteres.")
+            raise ParametroFaltanteError("El nombre debe tener mínimo 3 caracteres.")
         self.__nombre = nomb
 
     @property
@@ -46,7 +46,7 @@ class Cliente(Entidad):
     def correo(self, email):
 
         if "@" not in email:
-            raise ClienteInvalidoError("Correo electrónico inválido.")
+            raise ParametroFaltanteError("Correo electrónico inválido.")
         self.__correo = email
 
     @property
