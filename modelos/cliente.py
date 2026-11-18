@@ -1,5 +1,5 @@
 from modelos.entidades import Entidad
-from excepciones import ClienteInvalidoError
+from excepciones import (ClienteInvalidoError, ParametroFaltanteError)
 
 class Cliente(Entidad):
 
@@ -21,7 +21,7 @@ class Cliente(Entidad):
     def documento(self, identidad):
 
         if not identidad:
-            raise ClienteInvalidoError( "El documento es obligatorio.")
+            raise ParametroFaltanteError( "El documento es obligatorio.")
 
         if not str(identidad).isdigit():
             raise ClienteInvalidoError("El documento debe contener solo números.")
