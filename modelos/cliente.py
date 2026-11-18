@@ -1,18 +1,21 @@
 from modelos.entidades import Entidad
 from excepciones import (ClienteInvalidoError, ParametroFaltanteError)
+from logger import registrar_error
+
 
 class Cliente(Entidad):
-
-    def __init__(self, documento, nombre, correo, telefono):
-
-        super().__init__(documento) # Llamada al constructor de la clase base Entidad para inicializar el identificador
+    def __init__(self,documento,nombre,correo,telefono):
+        super().__init__(documento)
 
         self.documento = documento
         self.nombre = nombre
         self.correo = correo
         self.telefono = telefono
 
-    # Encapsulación
+    # ==========================
+    # DOCUMENTO
+    # ==========================
+
     @property
     def documento(self):
         return self.__documento
@@ -20,12 +23,28 @@ class Cliente(Entidad):
     @documento.setter
     def documento(self, identidad):
 
-        if not identidad:
-            raise ParametroFaltanteError( "El documento es obligatorio.")
+        if identidad is None:
+            mensaje = "El documento es obligatorio."
+            registrar_error(mensaje)
+            raise ParametroFaltanteError(mensaje)
+            
+        identidad = str(identidad).strip()
 
-        if not str(identidad).isdigit():
-            raise ClienteInvalidoError("El documento debe contener solo números.")
+        if not identidad:
+            mensaje = "El documento es obligatorio."
+            registrar_error(mensaje)
+            raise ParametroFaltanteError(mensaje)
+
+        if not identidad.isdigit():
+            mensaje = ("El documento debe contener " "solo números.")
+            registrar_error(mensaje)
+            raise ClienteInvalidoError(mensaje)
+
         self.__documento = identidad
+
+    # ==========================
+    # NOMBRE
+    # ==========================
 
     @property
     def nombre(self):
@@ -34,9 +53,29 @@ class Cliente(Entidad):
     @nombre.setter
     def nombre(self, nomb):
 
-        if len(nomb.strip()) < 3:
-            raise ParametroFaltanteError("El nombre debe tener mínimo 3 caracteres.")
-        self.__nombre = nomb
+        if nomb is None:
+            mensaje = "El nombre es obligatorio."
+            registrar_error(mensaje)
+            raise ParametroFaltanteError(mensaje)
+
+        if not isinstance(nomb, str):
+            mensaje = ("El nombre debe ser texto.")
+            registrar_error(mensaje)
+            raise ClienteInvalidoError(mensaje)
+
+        nomb = nomb.strip()
+
+        if len(nomb) < 3:
+            mensaje = ("El nombre debe tener " "mínimo 3 caracteres.")
+            registrar_error(mensaje)
+
+            raise ClienteInvalidoError(mensaje)
+
+        self.__nombre = nomb.title()
+
+    # ==========================
+    # CORREO
+    # ==========================
 
     @property
     def correo(self):
@@ -45,9 +84,33 @@ class Cliente(Entidad):
     @correo.setter
     def correo(self, email):
 
-        if "@" not in email:
-            raise ParametroFaltanteError("Correo electrónico inválido.")
+        if email is None:
+            mensaje = "El correo es obligatorio."
+            registrar_error(mensaje)
+            raise ParametroFaltanteError(mensaje)
+
+        if not isinstance(email, str):
+            mensaje = ("El correo debe ser texto.")
+            registrar_error(mensaje)
+            raise ClienteInvalidoError(mensaje)
+
+        email = email.strip().lower()
+
+        if not email:
+            mensaje = "El correo es obligatorio."
+            registrar_error(mensaje)
+            raise ParametroFaltanteError(mensaje)
+
+        if "@" not in email or "." not in email:
+            mensaje = ("Correo electrónico inválido.")
+            registrar_error(mensaje)
+            raise ClienteInvalidoError(mensaje)
+
         self.__correo = email
+
+    # ==========================
+    # TELÉFONO
+    # ==========================
 
     @property
     def telefono(self):
@@ -56,14 +119,43 @@ class Cliente(Entidad):
     @telefono.setter
     def telefono(self, tel):
 
-        if not str(tel).isdigit():
-            raise ClienteInvalidoError("El teléfono debe contener solo números.")
+        if tel is None:
+            mensaje = "El teléfono es obligatorio."
+            registrar_error(mensaje)
+            raise ParametroFaltanteError(mensaje)
 
-        if len(str(tel)) < 7:
-            raise ClienteInvalidoError("Teléfono inválido.")
+        tel = str(tel).strip()
+
+        if not tel:
+            mensaje = "El teléfono es obligatorio."
+            registrar_error(mensaje)
+            raise ParametroFaltanteError(mensaje)
+
+        if not tel.isdigit():
+            mensaje = ("El teléfono debe contener " "solo números.")
+            registrar_error(mensaje)
+            raise ClienteInvalidoError(mensaje)
+
+        if len(tel) < 7:
+            mensaje = ("El teléfono debe tener " "al menos 7 dígitos.")
+            registrar_error(mensaje)
+            raise ClienteInvalidoError(mensaje)
+
         self.__telefono = tel
 
+    # ==========================
+    # INFORMACIÓN
+    # ==========================
 
     def mostrar_info(self):
-        return (f"- Documento: {self.documento}" f"Cliente: {self.nombre}" 
-                f"teléfono: {self.telefono}" f"Correo: {self.correo}")
+
+        return (
+            f"Cliente: {self.nombre}\n"
+            f"Documento: {self.documento}\n"
+            f"Teléfono: {self.telefono}\n"
+            f"Correo: {self.correo}"
+        )
+
+    def __str__(self):
+
+        return (f"{self.nombre} " f"({self.documento})")
