@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from excepciones import ParametroFaltanteError
 
 
 class Entidad(ABC):
@@ -10,7 +11,7 @@ class Entidad(ABC):
     def __init__(self, identificador):
 
         if not identificador:
-            raise ValueError("El identificador no puede estar vacío.")
+            raise ParametroFaltanteError ("El identificador no puede estar vacío.")
 
         self._identificador = str(identificador)
 
