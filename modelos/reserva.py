@@ -1,107 +1,139 @@
-import logging
-from excepciones import SoftwareFJError, ReservaInvalidaError
+"""Clase Reserva con estados del sistema Software FJ."""
+from excepciones import (SoftwareFJError, ReservaInvalidaError,
+                         OperacionNoPermitidaError)  # Excepciones propias
+from logger import registrar_evento, registrar_advertencia, registrar_error  # Logs
+
+ESTADOS_VALIDOS = ("Creada", "Confirmada", "Cancelada")  # Estados permitidos
 
 class Reserva:
-    _contador_id = 1  # Contador para autogenerar los IDs
+    """Reserva de un servicio por parte de un cliente."""
 
-    def __init__(self, cliente, servicio, duracion_horas: int, id_reserva: str = None):
+    _contador_id = 1  # Contador compartido para autogenerar IDs
+
+    def __init__(self, cliente, servicio, duracion_horas, id_reserva=None):
+        # Cliente y servicio son obligatorios
+        if cliente is None or servicio is None:
+            registrar_error("Reserva sin cliente o sin servicio")
+            raise ReservaInvalidaError("La reserva requiere un cliente y un servicio.")
+        # Si no llega un ID, se genera uno consecutivo (RES-001, RES-002...)
         if id_reserva is None:
             self.id_reserva = f"RES-{Reserva._contador_id:03d}"
             Reserva._contador_id += 1
         else:
             self.id_reserva = id_reserva
-            
-        self.cliente = cliente
-        self.servicio = servicio
-        self.duracion_horas = duracion_horas
-        self.estado = "Creada"  # Estados permitidos: Creada, Confirmada, Cancelada
+        self._cliente = cliente  # Atributo protegido
+        self._servicio = servicio  # Atributo protegido
+        self.duracion_horas = duracion_horas  # Pasa por el setter (valida)
+        self.estado = "Creada"  # Estado inicial
+        registrar_evento(f"Reserva {self.id_reserva} creada ({self.duracion_horas} h)")
 
     @property
-    def id_reserva(self) -> str:
+    def cliente(self):
+        """Cliente de la reserva (solo lectura)."""
+        return self._cliente
+
+    @property
+    def servicio(self):
+        """Servicio reservado (solo lectura)."""
+        return self._servicio
+
+    @property
+    def id_reserva(self):
+        """Identificador de la reserva."""
         return self._id_reserva
 
     @id_reserva.setter
-    def id_reserva(self, valor: str):
-        if not valor or not isinstance(valor, str) or len(valor.strip()) == 0:
+    def id_reserva(self, valor):
+        # Debe ser un texto no vacío
+        if not isinstance(valor, str) or not valor.strip():
             raise ReservaInvalidaError("El ID de la reserva no puede estar vacío o ser inválido.")
         self._id_reserva = valor.strip()
 
     @property
-    def duracion_horas(self) -> int:
+    def duracion_horas(self):
+        """Duración en horas."""
         return self._duracion_horas
 
     @duracion_horas.setter
-    def duracion_horas(self, valor: int):
-        if valor <= 0:
-            raise ReservaInvalidaError("La duración en horas de la reserva debe ser mayor estrictamente a cero.")
+    def duracion_horas(self, valor):
+        try:
+            # Compara con cero; falla con TypeError si no es numérico
+            if valor <= 0:
+                raise ReservaInvalidaError("La duración en horas debe ser mayor a cero.")
+        except TypeError as error:
+            # Encadenamiento: se conserva el TypeError original como causa
+            raise ReservaInvalidaError(f"Duración no numérica: {valor!r}") from error
         self._duracion_horas = int(valor)
 
     @property
-    def estado(self) -> str:
+    def estado(self):
+        """Estado actual de la reserva."""
         return self._estado
 
     @estado.setter
-    def estado(self, nuevo_estado: str):
-        estados_validos = ["Creada", "Confirmada", "Cancelada"]
-        if nuevo_estado not in estados_validos:
-            raise ReservaInvalidaError(f"Estado de reserva no permitido: '{nuevo_estado}'. Use: {estados_validos}")
+    def estado(self, nuevo_estado):
+        # Solo se aceptan los estados definidos
+        if nuevo_estado not in ESTADOS_VALIDOS:
+            raise ReservaInvalidaError(
+                f"Estado no permitido: '{nuevo_estado}'. Use: {list(ESTADOS_VALIDOS)}")
         self._estado = nuevo_estado
 
-    def calcular_costo_total(self, tarifa_hora: float, impuesto_porcentaje: float = 19.0, descuento_porcentaje: float = 0.0) -> float:
-        """Calcula el costo total de la reserva aplicando impuestos y descuentos."""
+    def calcular_costo_total(self, impuesto=0.0, descuento=0.0):
+        """Calcula el costo delegando en el servicio (polimorfismo).
+
+        Impuesto y descuento son fracciones entre 0 y 1 (0.19 = 19 %),
+        igual que en servicios.py.
+        """
         try:
-            if tarifa_hora < 0:
-                raise ReservaInvalidaError("La tarifa por hora no puede ser negativa.")
-            
-            subtotal = self.duracion_horas * tarifa_hora
-            monto_impuesto = subtotal * (impuesto_porcentaje / 100.0)
-            monto_descuento = subtotal * (descuento_porcentaje / 100.0)
-            
-            total = subtotal + monto_impuesto - monto_descuento
-            logging.info(f"Cálculo de costo para reserva {self.id_reserva}: Subtotal={subtotal}, Total={total}")
-            return round(total, 2)
-            
-        except Exception as e:
-            logging.error(f"Error al calcular el costo de la reserva {self.id_reserva}.")
-            raise ReservaInvalidaError(f"No se pudo calcular el costo de la reserva {self.id_reserva}.") from e
+            # El servicio valida disponibilidad, duración y calcula el total
+            return self._servicio.calcular_costo(self._duracion_horas, impuesto, descuento)
+        except SoftwareFJError:
+            # Los errores propios ya vienen registrados: se propagan igual
+            raise
+        except Exception as error:
+            # Error no previsto: se registra y se encadena con 'from'
+            registrar_error(f"Fallo inesperado al calcular costo de {self._id_reserva}")
+            raise ReservaInvalidaError(
+                f"No se pudo calcular el costo de {self._id_reserva}.") from error
 
     def confirmar_reserva(self):
-        """Confirma la reserva validando su estado actual y registrando eventos."""
+        """Confirma la reserva si su estado lo permite."""
         try:
-            if self.estado == "Confirmada":
-                raise ReservaInvalidaError(f"La reserva {self.id_reserva} ya se encuentra confirmada previamente.")
-            if self.estado == "Cancelada":
-                raise ReservaInvalidaError(f"No es posible confirmar la reserva {self.id_reserva} porque está cancelada.")
-            
+            # No se puede confirmar dos veces ni una reserva cancelada
+            if self._estado == "Confirmada":
+                raise OperacionNoPermitidaError(f"La reserva {self._id_reserva} ya está confirmada.")
+            if self._estado == "Cancelada":
+                raise OperacionNoPermitidaError(
+                    f"No se puede confirmar {self._id_reserva}: está cancelada.")
+            self._servicio.verificar_disponibilidad()  # El servicio debe seguir disponible
             self.estado = "Confirmada"
-            logging.info(f"Éxito: Reserva {self.id_reserva} confirmada para el cliente {self.cliente.nombre}.")
-
-        except ReservaInvalidaError as re:
-            logging.warning(f"Advertencia al confirmar reserva {self.id_reserva}: {re}")
-            raise  
-        except Exception as e:
-            logging.error(f"Error crítico inesperado al procesar la confirmación de la reserva {self.id_reserva}.")
-            raise ReservaInvalidaError(f"Falla grave y no prevista al confirmar la reserva {self.id_reserva}.") from e
+        except OperacionNoPermitidaError as error:
+            registrar_advertencia(f"Confirmación rechazada: {error}")
+            raise
+        except SoftwareFJError:
+            raise  # Ya registrado por el servicio
+        except Exception as error:
+            registrar_error(f"Fallo inesperado al confirmar {self._id_reserva}")
+            raise ReservaInvalidaError(
+                f"Falla no prevista al confirmar {self._id_reserva}.") from error
         else:
-            print(f"-> [ESTADO EXITOSO] La reserva {self.id_reserva} se procesó y confirmó correctamente.")
+            # Solo si no hubo error
+            registrar_evento(f"Reserva {self._id_reserva} confirmada ({self._cliente.nombre})")
         finally:
-            print(f"-> [LOG DE SISTEMA] Operación de confirmación finalizada para la reserva {self.id_reserva}.\n")
+            # Siempre se deja constancia de que la operación terminó
+            registrar_evento(f"Fin de confirmación de {self._id_reserva}")
 
     def cancelar_reserva(self):
-        """Cancelación de reserva"""
-        try:
-            if self.estado == "Cancelada":
-                raise ReservaInvalidaError(f"La reserva {self.id_reserva} ya estaba previamente cancelada.")
-            
-            self.estado = "Cancelada"
-            logging.info(f"Evento: Reserva {self.id_reserva} cancelada exitosamente.")
-            print(f"-> [ESTADO CANCELADO] La reserva {self.id_reserva} ha sido cancelada con éxito.")
+        """Cancela la reserva si aún no está cancelada."""
+        # Cancelar dos veces no está permitido
+        if self._estado == "Cancelada":
+            registrar_advertencia(f"Cancelación repetida en {self._id_reserva}")
+            raise OperacionNoPermitidaError(f"La reserva {self._id_reserva} ya está cancelada.")
+        self.estado = "Cancelada"
+        registrar_evento(f"Reserva {self._id_reserva} cancelada")
 
-        except ReservaInvalidaError as re:
-            logging.warning(f"Intento fallido de cancelación en reserva {self.id_reserva}: {re}")
-            raise
-
-    def obtener_detalles_reserva(self) -> str:
-        return (f"Reserva [ID: {self.id_reserva}] | Estado: {self.estado} | "
-                f"Cliente: {self.cliente.nombre} | Servicio: {self.servicio.nombre_servicio} | "
-                f"Duración: {self.duracion_horas} horas")
+    def obtener_detalles_reserva(self):
+        """Resumen en texto de la reserva."""
+        return (f"Reserva [ID: {self._id_reserva}] | Estado: {self._estado} | "
+                f"Cliente: {self._cliente.nombre} | Servicio: {self._servicio.nombre_servicio} | "
+                f"Duración: {self._duracion_horas} horas")
