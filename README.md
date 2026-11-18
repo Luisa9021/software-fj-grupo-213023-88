@@ -13,19 +13,19 @@ Sistema en Python con Programación Orientada a Objetos, sin base de datos. Gest
 |---|---|---|
 | Luisa Viviana Rueda Ayala (Luisa9021) | `excepciones.py` y `logger.py` | Listo |
 | Jorge Castaño (jorgecaasta17-rgb) | `modelos/entidades.py`: clase abstracta `Entidad` y `modelos/cliente.py`: clase `Cliente` | En revisión |
-| Mauricio Ramírez (Mmaupp) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | Asignado |
-| Valeria Daniel Sisa (valeriadaniel17) | `reserva.py`: clase `Reserva` con estados | Asignado |
-| (pendiente) | `main.py`: simulación de 10 operaciones o más | Pendiente |
+| Mauricio Ramírez (Mmaupp) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | En revisión |
+| Valeria Daniel Sisa (valeriadaniel17) | `reserva.py`: clase `Reserva` con estados | En revisión |
+| Luisa Viviana Rueda Ayala (Luisa9021) | `main.py`: simulación de 16 operaciones (válidas e inválidas). El grupo tiene 4 integrantes activos, por eso este archivo quedó a cargo de Luisa. | Listo |
 
 ## Estructura del proyecto
 
 ```
 software-fj-grupo-213023-88/
-├── main.py            # Simulación de 10 operaciones o más (pendiente)
+├── main.py            # Simulación de 16 operaciones
 ├── excepciones.py     # Excepciones personalizadas
 ├── logger.py          # Registro de eventos y errores
-├── servicios.py       # Servicio y 3 servicios especializados (pendiente)
-├── reserva.py         # Reserva con estados (asignado)
+├── servicios.py       # Servicio y 3 servicios especializados
+├── reserva.py         # Reserva con estados
 ├── logs/
 │   └── software_fj.log   # Se genera al ejecutar el programa
 └── modelos/
@@ -34,15 +34,24 @@ software-fj-grupo-213023-88/
     └── cliente.py     # Clase Cliente
 ```
 
+## Conceptos aplicados
+- **Abstracción:** clases abstractas `Entidad` y `Servicio`.
+- **Herencia y polimorfismo:** `Cliente` y los servicios heredan de `Entidad`; cada servicio calcula su costo a su manera.
+- **Encapsulación:** atributos protegidos o privados con validación en propiedades.
+- **Excepciones personalizadas:** jerarquía que parte de `SoftwareFJError`.
+- **Bloques de control:** `try/except`, `try/except/else` y `try/except/finally`.
+- **Encadenamiento:** `raise ... from ...` para conservar la causa original.
+- **Logs:** eventos y errores registrados en `logs/software_fj.log` sin detener la ejecución.
+
 ## Cómo participar
 1. Aceptar la invitación de colaborador que llega al correo de GitHub.
 2. Crear el archivo que le corresponde con **Add file → Create new file**.
 3. Documentar cada línea del código con comentarios.
 4. Guardar con un commit de mensaje claro, por ejemplo: `Agregar clase Cliente`.
-5. Actualizar su nombre en la tabla de arriba.
+5. Actualizar su nombre y el estado en la tabla de arriba.
 
 ## Cómo ejecutarlo
 1. Instalar Python 3.
-2. Descargar el proyecto y abrir una terminal en la carpeta.
+2. Descargar el proyecto y abrir una terminal en la carpeta raíz.
 3. Ejecutar: `python main.py`
 4. Revisar el archivo `logs/software_fj.log`.
