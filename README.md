@@ -12,9 +12,9 @@ Sistema en Python con Programación Orientada a Objetos, sin base de datos. Gest
 | Integrante | Archivo | Estado |
 |---|---|---|
 | Luisa Viviana Rueda Ayala (Luisa9021) | `excepciones.py` y `logger.py` | Listo |
-| Jorge Castaño (jorgecaasta17-rgb) | `modelos/entidades.py`: clase abstracta `Entidad` y `modelos/cliente.py`: clase `Cliente` | En revisión |
-| Mauricio Ramírez (Mmaupp) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | En revisión |
-| Valeria Daniel Sisa (valeriadaniel17) | `reserva.py`: clase `Reserva` con estados | En revisión |
+| Jorge Castaño (jorgecaasta17-rgb) | `modelos/entidades.py`: clase abstracta `Entidad` y `modelos/cliente.py`: clase `Cliente` | Listo |
+| Mauricio Ramírez (Mmaupp) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | Listo |
+| Valeria Daniel Sisa (valeriadaniel17) | `reserva.py`: clase `Reserva` con estados | Listo |
 | Luisa Viviana Rueda Ayala (Luisa9021) | `main.py`: simulación de 16 operaciones (válidas e inválidas). El grupo tiene 4 integrantes activos, por eso este archivo quedó a cargo de Luisa. | Listo |
 
 ## Estructura del proyecto
@@ -29,7 +29,6 @@ software-fj-grupo-213023-88/
 ├── logs/
 │   └── software_fj.log   # Se genera al ejecutar el programa
 └── modelos/
-    ├── __init__.py    # Convierte la carpeta en paquete de Python
     ├── entidades.py   # Clase abstracta Entidad
     └── cliente.py     # Clase Cliente
 ```
@@ -43,15 +42,11 @@ software-fj-grupo-213023-88/
 - **Encadenamiento:** `raise ... from ...` para conservar la causa original.
 - **Logs:** eventos y errores registrados en `logs/software_fj.log` sin detener la ejecución.
 
-## Cómo participar
-1. Aceptar la invitación de colaborador que llega al correo de GitHub.
-2. Crear el archivo que le corresponde con **Add file → Create new file**.
-3. Documentar cada línea del código con comentarios.
-4. Guardar con un commit de mensaje claro, por ejemplo: `Agregar clase Cliente`.
-5. Actualizar su nombre y el estado en la tabla de arriba.
-
 ## Cómo ejecutarlo
 1. Instalar Python 3.
 2. Descargar el proyecto y abrir una terminal en la carpeta raíz.
 3. Ejecutar: `python main.py`
 4. Revisar el archivo `logs/software_fj.log`.
+
+## Resultado de la simulación
+`main.py` ejecuta 16 operaciones seguidas. Las 7 operaciones con datos válidos terminan con éxito y las 9 con datos inválidos (correo sin arroba, documento con letras, tarifa negativa, duración `abc` o cero, sala con exceso de personas, servicio no disponible, descuento del 150 % y confirmar una reserva cancelada) se controlan con excepciones personalizadas. El programa no se detiene y todo queda registrado en `logs/software_fj.log`.
