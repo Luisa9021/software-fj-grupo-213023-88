@@ -15,7 +15,7 @@ Sistema en Python con Programación Orientada a Objetos, sin base de datos. Gest
 | Jorge Castaño (jorgecaasta17-rgb) | `modelos/entidades.py`: clase abstracta `Entidad` y `modelos/cliente.py`: clase `Cliente` | Listo |
 | Mauricio Ramírez (Mmaupp) | `servicios.py`: clase abstracta `Servicio` y 3 servicios especializados | Listo |
 | Valeria Daniel Sisa (valeriadaniel17) | `reserva.py`: clase `Reserva` con estados | Listo |
-| Dayan de Jesus Wilches Lozano (SrJungler) | `main.py`: simulación de 16 operaciones (válidas e inválidas). | Asignado |
+| Dayan de Jesus Wilches Lozano (SrJungler) | `main.py`: simulación de 16 operaciones (válidas e inválidas). | Listo |
 
 ## Estructura del proyecto
 
