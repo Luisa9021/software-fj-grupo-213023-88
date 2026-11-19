@@ -9,8 +9,8 @@ ESTADOS_VALIDOS = ("Creada", "Confirmada", "Cancelada")  # Estados permitidos
 
 class Reserva:
     """Reserva de un servicio por parte de un cliente."""
-
-    _contador_id = 1  # Contador compartido para autogenerar IDs
+# Contador de clase para que cada reserva nueva tenga su ID consecutivo automáticamente
+    _contador_id = 1  
 
     def __init__(self, cliente, servicio, duracion_horas, id_reserva=None):
         # Cliente y servicio son obligatorios
@@ -23,6 +23,7 @@ class Reserva:
             Reserva._contador_id += 1
         else:
             self.id_reserva = id_reserva
+          # Guardo cliente y servicio como atributos protegidos
         self._cliente = cliente  # Atributo protegido
         self._servicio = servicio  # Atributo protegido
         self.duracion_horas = duracion_horas  # Pasa por el setter (valida)
@@ -65,6 +66,9 @@ class Reserva:
         except TypeError as error:
             # Encadenamiento: se conserva el TypeError original como causa
             raise ReservaInvalidaError(f"Duración no numérica: {valor!r}") from error
+        # Solo se aceptan horas enteras: 2.7 no se convierte en 2 en silencio
+        if valor != int(valor):
+            raise ReservaInvalidaError(f"La duración debe ser un número entero de horas: {valor!r}")
         self._duracion_horas = int(valor)
 
     @property
